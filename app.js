@@ -1,26 +1,32 @@
-import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Protected from "./components/protected";
 
 import Login from "./pages/login";
-import DashboardLayout from "./layout/dashboardlayout";
+import Signup from "./pages/signup";
+
+import DashboardLayout from "./layouts/dashboardlayout";
 import Dashboard from "./pages/dashboard";
 import Transactions from "./pages/transactions";
 import Categories from "./pages/categories";
 import Profile from "./pages/profile";
-import Signup from "./pages/signup";
-import Protected from "./components/protected";
-
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Login Page */}
-        <Route path="/" element={<Login />} />
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* Dashboard Layout */}
-        <Route path="/dashboard" element={<DashboardLayout />}>
+        {/* Protected Dashboard Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <Protected>
+              <DashboardLayout />
+            </Protected>
+          }
+        >
           <Route index element={<Dashboard />} />
           <Route path="transactions" element={<Transactions />} />
           <Route path="categories" element={<Categories />} />
