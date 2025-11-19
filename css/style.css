@@ -1,0 +1,179 @@
+:root {
+  --primary: #00c2a8;
+  --background: #0a1929; /* page bg */
+  --secondary: #003356; /* navbar/footer */
+  --card-bg: #112b3c; /* boxes */
+  --text: #e0e6eb; /* main text */
+  --muted-text: #a5b2bf; /* less prominent text */
+  --white: #ffffff;
+}
+
+/* Global */
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  background-color: var(--secondary);
+  color: var(--text);
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+.navbar {
+  background: linear-gradient(90deg, var(--background), var(--card-bg));
+  padding: 0 2rem;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.navbar-brand {
+  color: var(--muted-text) !important;
+  font-weight: 800;
+  font-size: 2.2rem;
+  letter-spacing: 1px;
+  text-shadow: 0 0 12px rgba(0, 166, 251, 0.7);
+  margin-right: 1.5rem;
+  background: linear-gradient(90deg, var(--secondary), var(--color8));
+  padding: 0.8rem 2.5rem;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-brand.gradient {
+  background: linear-gradient(90deg, var(--primary), var(--color8));
+  -webkit-text-fill-color: transparent;
+}
+
+.navbar-brand:hover,
+.navbar-brand:focus {
+  text-decoration: none !important;
+  color: var(--primary) !important;
+}
+
+.nav-link {
+  color: var(--white) !important;
+  font-weight: 500;
+  margin-left: 1rem;
+  transition: color 0.3s ease;
+}
+
+/* .nav-link:hover {
+  color: var(--primary) !important;
+} */
+
+.navbar-toggler {
+  border: none;
+  color: var(--text);
+}
+.navbar-toggler:focus {
+  box-shadow: none;
+}
+
+/* Cards & auth boxes */
+.card {
+  background-color: var(--card-bg);
+  color: var(--text);
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+  padding: 1.25rem;
+}
+
+/* Sign-in / sign-up box (fixed sensible sizing) */
+.signin-box {
+  background-color: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  width: 100%;
+  max-width: 520px; /* larger box so it doesn't look tiny */
+  padding: 2.25rem; /* restore comfortable padding */
+  color: var(--text);
+}
+
+/* Title inside auth box */
+.signin-box h2,
+.signin-box h3 {
+  margin: 0 0 1rem 0;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+  font-size: 1.6rem;
+}
+
+/* Inputs */
+.form-control {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.form-control::placeholder {
+  color: var(--muted-text);
+}
+.form-control:focus {
+  outline: none;
+  border-color: rgba(0, 64, 108, 0.9);
+  box-shadow: 0 0 0 0.2rem rgba(0, 64, 108, 0.12);
+}
+
+/* Buttons */
+.btn-primary,
+.signin-btn {
+  background-color: var(--primary);
+  color: var(--white);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-primary:hover,
+.signin-btn:hover {
+  background-color: var(--color7);
+}
+
+/* Links */
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+  color: var(--white);
+}
+
+/* Utility: make sure main container below fixed navbar has spacing */
+main,
+.container,
+.vh-100 {
+  padding-top: 90px;
+}
+
+/* Responsive fix: keep auth box centered on small screens */
+@media (max-width: 576px) {
+  .signin-box {
+    padding: 1.25rem;
+    margin: 20px;
+    max-width: 92%;
+  }
+  .navbar {
+    padding: 0.75rem 1rem;
+    height: 64px;
+  }
+  .navbar-brand {
+    font-size: 1.2rem;
+  }
+}
