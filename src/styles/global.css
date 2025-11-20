@@ -1,0 +1,25 @@
+/* Light Theme */
+.light-theme {
+  --bg: #ffffff;
+  --text: #111111;
+  --card: #f9f9f9;
+  --border: #e1e1e1;
+  --primary: #0d6efd;
+  --shadow: rgba(0, 0, 0, 0.05) 0px 3px 6px;
+}
+
+/* Dark Theme */
+.dark-theme {
+  --bg: #121212;
+  --text: #ffffff;
+  --card: #1f1f1f;
+  --border: #333;
+  --primary: #4a9fff;
+  --shadow: rgba(255, 255, 255, 0.05) 0px 3px 6px;
+}
+
+/* Apply Theme */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}

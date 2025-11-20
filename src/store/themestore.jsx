@@ -1,13 +1,23 @@
 import { create } from "zustand";
 
+export const useThemeStore = create((set) => ({
+  theme: "light",
+
+  toggleTheme: () =>
+    set((state) => {
+      const newTheme = state.theme === "light" ? "dark" : "light";
+
+      // Apply to HTML root so CSS can react
+      document.documentElement.setAttribute("data-theme", newTheme);
+
+      return { theme: newTheme };
+    }),
+}));
+
 export const useUserStore = create((set) => ({
   user: null,
-  token: null,
 
-  setUser: (userData, jwtToken) => set({ user: userData, token: jwtToken }),
+  setUser: (userData) => set({ user: userData }),
 
-  logout: () => {
-    localStorage.removeItem("token");
-    set({ user: null, token: null });
-  },
+  logout: () => set({ user: null }),
 }));

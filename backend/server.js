@@ -5,15 +5,15 @@ require("dotenv").config();
 
 const app = express();
 
-// 🔥 Middleware must come BEFORE routes
+//Middleware must come BEFORE routes
 app.use(cors());
 app.use(express.json());
 
-// Database
+//Database
 const connectDB = require("./config/db");
 connectDB();
 
-// Routes
+//Routes
 const authRoutes = require("./routes/authRoutes");
 app.use("/api/auth", authRoutes);
 

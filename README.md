@@ -1,3 +1,84 @@
+📦 Project Setup — Required Dependencies
+
+Before running the project, make sure you install all dependencies for:
+
+🚀 Frontend (React)
+
+Go inside your frontend folder:
+
+cd fintrack
+npm install
+
+Frontend Dependencies
+
+These are automatically installed when running npm install, but listing here for reference:
+
+Package Purpose
+react, react-dom Core React library
+react-router-dom Frontend routing
+axios API calls to backend
+zustand Global state management (theme, user store)
+bootstrap UI styling
+bootstrap-icons Sidebar & UI icons
+web-vitals CRA internal tool
+
+If anything is missing, run:
+
+npm install react-router-dom axios zustand bootstrap bootstrap-icons
+
+🖥️ Backend (Node + Express)
+
+Go inside backend folder:
+
+cd backend
+npm install
+
+Backend Dependencies
+Package Purpose
+express Server + API routing
+mongoose MongoDB connection
+dotenv Load environment variables
+cors Allow frontend to call backend
+bcryptjs Password hashing
+jsonwebtoken JWT authentication
+nodemon (dev only) Auto-reload backend during development
+
+Install them manually if needed:
+
+npm install express mongoose dotenv cors bcryptjs jsonwebtoken
+npm install --save-dev nodemon
+
+🗄️ MongoDB Setup
+
+Your teammates must install ONE of these:
+
+Option 1: MongoDB Compass (GUI – easiest)
+
+https://www.mongodb.com/try/download/compass
+
+or
+
+Option 2: MongoDB Community Server
+
+https://www.mongodb.com/try/download/community
+
+After installation, create a database:
+
+Database Name: fintrack
+
+▶️ How to Run the Project
+Start Backend
+cd backend
+npm run dev
+
+Runs at: http://localhost:5000
+
+Start Frontend
+cd fintrack
+npm start
+
+Runs at: http://localhost:3000
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
