@@ -19,5 +19,8 @@ export const useUserStore = create((set) => ({
 
   setUser: (userData) => set({ user: userData }),
 
-  logout: () => set({ user: null }),
+  logout: () => {
+    localStorage.removeItem("token");
+    set({ user: null });
+  }
 }));

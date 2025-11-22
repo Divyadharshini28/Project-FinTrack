@@ -1,9 +1,17 @@
+import React from "react";
 import { Navigate } from "react-router-dom";
+import { useUserStore } from "../store/userstore";
 
-export default function Protected({ children }) {
+function Protected({ children }) {
+  const user = useUserStore((state) => state.user);
   const token = localStorage.getItem("token");
 
-  if (!token) return <Navigate to="/login" replace />;
+  // If no user OR no token → force login
+  if (!user || !token) {
+    return <Navigate to="/" replace />;
+  }
 
   return children;
 }
+
+export default Protected;

@@ -1,112 +1,78 @@
 import React from "react";
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import Themetoggle from "../components/themetoggle";
+import { Outlet, useLocation } from "react-router-dom";
+import Sidebar from "../components/sidebar";
+import ThemeToggle from "../components/themetoggle";
 import { useUserStore } from "../store/userstore";
 
 function DashboardLayout() {
-  const user = useUserStore((state) => state.user);
-  const navigate = useNavigate();
+  const user = useUserStore((s) => s.user);
+  const location = useLocation();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
+  const getPageTitle = () => {
+    const path = location.pathname.replace("/dashboard", "") || "/";
+    if (path === "/" || path === "") return "Overview";
+    const parts = path.split("/").filter(Boolean);
+    return parts[parts.length - 1]
+      .split("-")
+      .map((w) => w[0].toUpperCase() + w.slice(1))
+      .join(" ");
   };
+
+  const pageTitle = getPageTitle();
+
+  const avatarInitial = user?.username
+    ? user.username.charAt(0).toUpperCase()
+    : "U";
 
   return (
     <div className="d-flex" style={{ minHeight: "100vh" }}>
-      {/* SIDEBAR */}
-      <div
-        className="sidebar d-flex flex-column p-3"
-        style={{
-          width: "240px",
-          backgroundColor: "var(--card)",
-          borderRight: "1px solid var(--border)",
-        }}
-      >
-        <h2
-          className="text-theme mb-4"
-          style={{ fontWeight: 700, fontSize: "1.6rem" }}
-        >
-          FinTrack
-        </h2>
+      <Sidebar />
 
-        {/* LINKS */}
-        <nav className="d-flex flex-column gap-2 h-100">
-          {/* NAV LINKS */}
-          <div className="d-flex flex-column gap-2">
-            <NavLink
-              to="/dashboard"
-              className={({ isActive }) =>
-                `nav-link sidebar-link ${isActive ? "active-link" : ""}`
-              }
-            >
-              <i className="bi bi-grid me-2"></i> Dashboard
-            </NavLink>
-
-            <NavLink
-              to="/dashboard/transactions"
-              className={({ isActive }) =>
-                `nav-link sidebar-link ${isActive ? "active-link" : ""}`
-              }
-            >
-              <i className="bi bi-cash-coin me-2"></i> Transactions
-            </NavLink>
-
-            <NavLink
-              to="/dashboard/categories"
-              className={({ isActive }) =>
-                `nav-link sidebar-link ${isActive ? "active-link" : ""}`
-              }
-            >
-              <i className="bi bi-tags me-2"></i> Categories
-            </NavLink>
-
-            <NavLink
-              to="/dashboard/profile"
-              className={({ isActive }) =>
-                `nav-link sidebar-link ${isActive ? "active-link" : ""}`
-              }
-            >
-              <i className="bi bi-person me-2"></i> Profile
-            </NavLink>
-          </div>
-
-          {/* LOGOUT FIXED AT BOTTOM */}
-          <button
-            className="nav-link sidebar-link mt-auto text-start"
-            onClick={handleLogout}
-            style={{ background: "none", border: "none" }}
-          >
-            <i className="bi bi-box-arrow-right me-2"></i> Logout
-          </button>
-        </nav>
-      </div>
-
-      {/* MAIN AREA */}
-      <div className="flex-grow-1">
+      {/* MAIN */}
+      <div className="flex-grow-1 d-flex flex-column">
         {/* TOPBAR */}
-        <div
-          className="d-flex justify-content-between align-items-center p-3"
+        <header
+          className="d-flex align-items-center justify-content-between px-3"
           style={{
+            height: 72,
             backgroundColor: "var(--card)",
             borderBottom: "1px solid var(--border)",
           }}
         >
-          <h3 className="text-theme m-0" style={{ fontWeight: 600 }}>
-            Dashboard
-          </h3>
+          <h3 className="m-0 fw-bold text-theme">{pageTitle}</h3>
 
-          {/* USERNAME + THEME TOGGLE */}
           <div className="d-flex align-items-center gap-3">
-            <span className="text-theme">{user?.username}</span>
-            <Themetoggle />
-          </div>
-        </div>
+            <ThemeToggle />
 
-        {/* PAGE CONTENT */}
-        <div className="p-4">
-          <Outlet />
-        </div>
+            {/* Avatar */}
+            <div
+              title={user?.username}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: "50%",
+                backgroundColor: "var(--accent)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 700,
+                fontSize: "1rem",
+                color: "var(--text)",
+                border: "1px solid var(--border)",
+                boxShadow: "var(--shadow)",
+              }}
+            >
+              {avatarInitial}
+            </div>
+          </div>
+        </header>
+
+        {/* CONTENT */}
+        <main style={{ flex: 1, backgroundColor: "var(--bg)" }}>
+          <div className="p-4">
+            <Outlet />
+          </div>
+        </main>
       </div>
     </div>
   );

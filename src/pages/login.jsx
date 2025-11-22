@@ -1,132 +1,129 @@
-// src/pages/login.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { useUserStore } from "../store/userstore";
-import Themetoggle from "../components/themetoggle";
 
 function Login() {
   const navigate = useNavigate();
+
+  // ⭐ Pull setUser from Zustand
   const setUser = useUserStore((state) => state.setUser);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
 
-    // simple client-side validation
-    if (!email.trim() || !password.trim()) {
-      setError("Please enter both email and password.");
-      return;
-    }
-
-    setLoading(true);
     try {
       const res = await API.post("/auth/login", { email, password });
 
-      const { token, user } = res.data;
+      // Save token
+      localStorage.setItem("token", res.data.token);
 
-      // Save token in browser
-      localStorage.setItem("token", token);
+      // ⭐ Save user in Zustand (very important)
+      setUser(res.data.user);
 
-      // Save user + token in Zustand (ensure userstore.setUser accepts token)
-      if (typeof setUser === "function") {
-        setUser(user, token);
-      }
-
-      // Redirect to dashboard
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     } catch (err) {
-      console.error("Login error:", err);
-      const msg = err.response?.data?.message || "Login failed. Please try again.";
-      setError(msg);
-    } finally {
-      setLoading(false);
+      setError(err.response?.data?.message || "Login failed");
     }
   };
 
   return (
-    <div
-      className="d-flex justify-content-center align-items-center"
-      style={{ minHeight: "100vh", backgroundColor: "var(--bg)" }}
-    >
-      <div
-        className="card p-4"
-        style={{
-          width: "360px",
-          borderRadius: "16px",
-          backgroundColor: "var(--card)",
-          border: "1px solid var(--border)",
-          boxShadow: "var(--shadow)",
-        }}
-      >
-        <div className="d-flex justify-content-end mb-3">
-          <Themetoggle />
-        </div>
+    <div className="login-wrapper login-bg">
+      {/* LEFT HERO */}
+      <div className="login-left">
+        <h1 className="hero-title">FinTrack</h1>
+        <p className="hero-subtitle">
+          Manage your expenses effortlessly. Save more, spend smarter.
+        </p>
 
-        <h3 className="text-theme mb-3 text-center fw-semibold">FinTrack Login</h3>
+        <img
+          src="https://cdni.iconscout.com/illustration/premium/thumb/investment-planning-illustration-download-in-svg-png-gif-file-formats--finance-money-saving-pack-illustrations-4302968.png"
+          className="hero-image"
+          alt="Finance Illustration"
+        />
+      </div>
 
-        {error && (
-          <p className="text-danger text-center mb-2" style={{ fontSize: "0.95rem" }}>
-            {error}
-          </p>
-        )}
-
-        <form onSubmit={handleLogin}>
-          <div className="mb-3">
-            <label className="form-label text-theme">Email</label>
-            <input
-              type="email"
-              className="form-control"
-              placeholder="Enter email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              style={{
-                backgroundColor: "var(--card)",
-                color: "var(--text)",
-                borderColor: "var(--border)",
-              }}
-            />
-          </div>
-
-          <div className="mb-3">
-            <label className="form-label text-theme">Password</label>
-            <input
-              type="password"
-              className="form-control"
-              placeholder="Enter password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              style={{
-                backgroundColor: "var(--card)",
-                color: "var(--text)",
-                borderColor: "var(--border)",
-              }}
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="btn btn-primary w-100"
-            style={{ borderRadius: "8px", padding: "10px" }}
-            disabled={loading}
+      {/* RIGHT FORM */}
+      <div className="login-right">
+        <div className="login-card fade-in">
+          <h3
+            className="text-center mb-3 fw-bold"
+            style={{ color: "var(--text)" }}
           >
-            {loading ? "Logging in..." : "Login"}
-          </button>
+            Welcome Back
+          </h3>
+          <p className="text-center text-subtle mb-4">
+            Login to continue your journey
+          </p>
 
-          <p className="text-center mt-3 text-subtle" style={{ fontSize: "0.9rem" }}>
+          {error && <p className="text-danger text-center">{error}</p>}
+
+          <form onSubmit={handleLogin}>
+            {/* EMAIL */}
+            <div className="mb-3">
+              <label className="form-label text-theme">Email</label>
+              <input
+                type="email"
+                className="form-control"
+                placeholder="Enter email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* PASSWORD WITH TOGGLE */}
+            <div className="mb-4">
+              <label className="form-label text-theme">Password</label>
+              <div style={{ position: "relative" }}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  className="form-control"
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+
+                <i
+                  className={`bi ${
+                    showPassword ? "bi-eye-slash-fill" : "bi-eye-fill"
+                  }`}
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: "absolute",
+                    right: "12px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    cursor: "pointer",
+                    fontSize: "1.1rem",
+                    color: "gray",
+                  }}
+                ></i>
+              </div>
+            </div>
+
+            <button type="submit" className="btn btn-primary w-100">
+              <i className="bi bi-box-arrow-in-right me-2"></i> Login
+            </button>
+          </form>
+
+          <p className="text-center mt-3 text-subtle">
             Don’t have an account?{" "}
-            <a href="/signup" style={{ color: "var(--primary)", textDecoration: "none" }}>
+            <a
+              href="/signup"
+              style={{ color: "var(--primary)", textDecoration: "none" }}
+            >
               Sign up
             </a>
           </p>
-        </form>
+        </div>
       </div>
     </div>
   );

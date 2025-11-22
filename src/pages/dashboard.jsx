@@ -1,117 +1,128 @@
 import React from "react";
+import { useUserStore } from "../store/userstore";
 
 function Dashboard() {
+  const user = useUserStore((state) => state.user);
+
   return (
-    <div className="container-fluid">
-      {/* PAGE HEADER */}
-      <h3 className="text-theme fw-semibold mb-4">Dashboard</h3>
+    <div className="animate-fade">
+      {/* HEADER */}
+      <h2 className="fw-bold mb-4" style={{ color: "var(--text)" }}>
+        Welcome back,{" "}
+        <span style={{ color: "var(--primary)" }}>{user?.username}</span>
+      </h2>
 
       {/* SUMMARY CARDS */}
       <div className="row g-4 mb-4">
-        {/* BALANCE */}
         <div className="col-md-4">
           <div
             className="card p-4"
             style={{
               backgroundColor: "var(--card)",
-              border: "1px solid var(--border)",
-              borderRadius: "16px",
-              boxShadow: "var(--shadow)",
+              borderRadius: "14px",
+              border: "2px solid var(--teal)", // teal border
+              animation: "fadeInUp 0.6s ease",
             }}
           >
-            <h6 className="text-subtle mb-1">Total Balance</h6>
-            <h2 className="text-theme fw-bold">₹ 0</h2>
+            <h5 style={{ color: "var(--teal-dark)" }}>Total Balance</h5>
+            <h3 className="fw-bold mt-2" style={{ color: "var(--teal)" }}>
+              ₹12,540
+            </h3>
           </div>
         </div>
 
-        {/* INCOME */}
         <div className="col-md-4">
           <div
             className="card p-4"
             style={{
               backgroundColor: "var(--card)",
-              border: "1px solid var(--border)",
-              borderRadius: "16px",
-              boxShadow: "var(--shadow)",
+              borderRadius: "14px",
+              border: "2px solid var(--teal)",
+              animation: "fadeInUp 0.7s ease",
             }}
           >
-            <h6 className="text-subtle mb-1">Total Income</h6>
-            <h2 className="text-success fw-bold">₹ 0</h2>
+            <h5 style={{ color: "var(--teal-dark)" }}>Monthly Income</h5>
+            <h3 className="fw-bold mt-2" style={{ color: "var(--teal)" }}>
+              ₹40,000
+            </h3>
           </div>
         </div>
 
-        {/* EXPENSE */}
         <div className="col-md-4">
           <div
             className="card p-4"
             style={{
               backgroundColor: "var(--card)",
-              border: "1px solid var(--border)",
-              borderRadius: "16px",
-              boxShadow: "var(--shadow)",
+              borderRadius: "14px",
+              border: "2px solid var(--teal)",
+              animation: "fadeInUp 0.8s ease",
             }}
           >
-            <h6 className="text-subtle mb-1">Total Expense</h6>
-            <h2 className="text-danger fw-bold">₹ 0</h2>
+            <h5 style={{ color: "var(--teal-dark)" }}>Monthly Expense</h5>
+            <h3 className="fw-bold mt-2" style={{ color: "var(--teal)" }}>
+              ₹18,430
+            </h3>
           </div>
         </div>
       </div>
 
-      {/* CHART PLACEHOLDER */}
-      <div
-        className="card p-4 mb-4"
-        style={{
-          backgroundColor: "var(--card)",
-          border: "1px solid var(--border)",
-          borderRadius: "16px",
-          boxShadow: "var(--shadow)",
-        }}
-      >
-        <h5 className="text-theme fw-semibold mb-3">Spending Overview</h5>
-
-        <div
-          className="d-flex justify-content-center align-items-center"
-          style={{
-            height: "250px",
-            border: "1px dashed var(--border)",
-            borderRadius: "12px",
-            color: "var(--text)",
-          }}
-        >
-          <span className="text-subtle">Chart will appear here</span>
+      {/* CHART SECTION */}
+      <div className="row g-4">
+        {/* Expense Breakdown */}
+        <div className="col-md-6">
+          <div
+            className="card p-4 shadow-sm"
+            style={{
+              backgroundColor: "var(--card)",
+              borderRadius: "14px",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <h5 className="fw-semibold mb-3 text-theme">Expense Breakdown</h5>
+            <div
+              style={{
+                height: "260px",
+                background: "var(--bg)",
+                borderRadius: "12px",
+                border: "1px dashed var(--border)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                color: "var(--subtext)",
+              }}
+            >
+              Pie Chart Placeholder
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* RECENT TRANSACTIONS */}
-      <div
-        className="card p-4"
-        style={{
-          backgroundColor: "var(--card)",
-          border: "1px solid var(--border)",
-          borderRadius: "16px",
-          boxShadow: "var(--shadow)",
-        }}
-      >
-        <h5 className="text-theme fw-semibold mb-3">Recent Transactions</h5>
-
-        <table className="table" style={{ color: "var(--text)" }}>
-          <thead>
-            <tr>
-              <th className="text-theme">Title</th>
-              <th className="text-theme">Category</th>
-              <th className="text-theme">Amount</th>
-              <th className="text-theme">Date</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr>
-              <td colSpan="4" className="text-center text-subtle py-3">
-                No recent transactions yet.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        {/* Monthly Spend Trend */}
+        <div className="col-md-6">
+          <div
+            className="card p-4 shadow-sm"
+            style={{
+              backgroundColor: "var(--card)",
+              borderRadius: "14px",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <h5 className="fw-semibold mb-3 text-theme">Monthly Spend Trend</h5>
+            <div
+              style={{
+                height: "260px",
+                background: "var(--bg)",
+                borderRadius: "12px",
+                border: "1px dashed var(--border)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                color: "var(--subtext)",
+              }}
+            >
+              Line Chart Placeholder
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

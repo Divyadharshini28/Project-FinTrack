@@ -7,6 +7,7 @@ const User = require("../models/usermodels");
 
 // REGISTER
 router.post("/register", async (req, res) => {
+  console.log("Incoming signup body : ", req.body);
   try {
     const { username, email, password } = req.body;
 
