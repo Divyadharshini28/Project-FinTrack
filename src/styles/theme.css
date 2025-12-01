@@ -195,28 +195,20 @@ body {
 /* =========================================================
    DASHBOARD CARDS (SUMMARY CARDS)
    ========================================================= */
-.dashboard-card {
-  background-color: var(--card);
-  border: 2px solid var(--teal);
-  border-radius: 14px;
-  padding: 24px;
-  box-shadow: var(--shadow);
-  transition: 0.25s ease;
-}
-
 .dashboard-card:hover {
   transform: translateY(-4px);
-  border-color: var(--teal-dark);
+  box-shadow: 0 6px 16px rgba(5, 88, 100, 0.18);
 }
 
-.dashboard-card h5 {
-  color: var(--peach);
-  font-weight: 600;
-}
-
-.dashboard-card h3 {
-  color: var(--peach-dark);
-  font-weight: 800;
+.chart-placeholder {
+  height: 260px;
+  background: var(--bg);
+  border-radius: 12px;
+  border: 1px dashed var(--border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--subtext);
 }
 
 /* =========================================================
@@ -235,4 +227,36 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* action icons in transactions */
+.action-icon {
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: all 0.18s ease;
+  color: var(--text);
+}
+
+.action-icon:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.action-icon i {
+  font-size: 1rem;
+}
+
+/* edit icon tint (teal) */
+.action-icon:hover .bi-pencil-square,
+.action-icon:hover {
+  color: var(--primary);
+}
+
+/* delete icon tint (peach/red) */
+.delete-icon:hover {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.06);
+  border-color: rgba(255, 107, 107, 0.12);
 }

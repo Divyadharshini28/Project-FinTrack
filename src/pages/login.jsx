@@ -5,8 +5,6 @@ import { useUserStore } from "../store/userstore";
 
 function Login() {
   const navigate = useNavigate();
-
-  // ⭐ Pull setUser from Zustand
   const setUser = useUserStore((state) => state.setUser);
 
   const [email, setEmail] = useState("");
@@ -19,12 +17,12 @@ function Login() {
     setError("");
 
     try {
-      const res = await API.post("/auth/login", { email, password });
+      const res = await API.auth.login({ email, password });
 
       // Save token
       localStorage.setItem("token", res.data.token);
 
-      // ⭐ Save user in Zustand (very important)
+      // Save user globally
       setUser(res.data.user);
 
       navigate("/dashboard", { replace: true });
@@ -35,7 +33,6 @@ function Login() {
 
   return (
     <div className="login-wrapper login-bg">
-      {/* LEFT HERO */}
       <div className="login-left">
         <h1 className="hero-title">FinTrack</h1>
         <p className="hero-subtitle">
@@ -49,7 +46,6 @@ function Login() {
         />
       </div>
 
-      {/* RIGHT FORM */}
       <div className="login-right">
         <div className="login-card fade-in">
           <h3
@@ -78,35 +74,33 @@ function Login() {
               />
             </div>
 
-            {/* PASSWORD WITH TOGGLE */}
-            <div className="mb-4">
+            {/* PASSWORD */}
+            <div className="mb-4 position-relative">
               <label className="form-label text-theme">Password</label>
-              <div style={{ position: "relative" }}>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  className="form-control"
-                  placeholder="Enter password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
 
-                <i
-                  className={`bi ${
-                    showPassword ? "bi-eye-slash-fill" : "bi-eye-fill"
-                  }`}
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: "absolute",
-                    right: "12px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    cursor: "pointer",
-                    fontSize: "1.1rem",
-                    color: "gray",
-                  }}
-                ></i>
-              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                className="form-control"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+
+              <i
+                className={`bi ${
+                  showPassword ? "bi-eye-slash-fill" : "bi-eye-fill"
+                }`}
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "12px",
+                  top: "57%",
+                  transform: "translateY(-50%)",
+                  cursor: "pointer",
+                  fontSize: "1.2rem",
+                }}
+              ></i>
             </div>
 
             <button type="submit" className="btn btn-primary w-100">

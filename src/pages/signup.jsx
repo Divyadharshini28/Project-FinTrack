@@ -22,7 +22,7 @@ function Signup() {
     }
 
     try {
-      await API.post("/auth/register", {
+      await API.auth.register({
         username: name,
         email,
         password,
@@ -37,7 +37,6 @@ function Signup() {
 
   return (
     <div className="login-wrapper login-bg">
-      {/* LEFT HERO */}
       <div className="login-left">
         <h1 className="hero-title">Join FinTrack</h1>
         <p className="hero-subtitle">
@@ -51,7 +50,6 @@ function Signup() {
         />
       </div>
 
-      {/* RIGHT FORM */}
       <div className="login-right">
         <div className="login-card fade-in">
           <h3
@@ -65,6 +63,7 @@ function Signup() {
           {error && <p className="text-danger text-center">{error}</p>}
 
           <form onSubmit={handleSignup}>
+            {/* NAME */}
             <div className="mb-3">
               <label className="form-label text-theme">Full Name</label>
               <input
@@ -77,6 +76,7 @@ function Signup() {
               />
             </div>
 
+            {/* EMAIL */}
             <div className="mb-3">
               <label className="form-label text-theme">Email</label>
               <input
@@ -89,7 +89,7 @@ function Signup() {
               />
             </div>
 
-            {/* Password with eye toggle */}
+            {/* PASSWORD */}
             <div className="mb-3 position-relative">
               <label className="form-label text-theme">Password</label>
               <input
@@ -114,7 +114,7 @@ function Signup() {
               ></i>
             </div>
 
-            {/* Confirm Password */}
+            {/* CONFIRM PASSWORD */}
             <div className="mb-4 position-relative">
               <label className="form-label text-theme">Confirm Password</label>
               <input

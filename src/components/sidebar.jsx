@@ -1,3 +1,4 @@
+// src/components/sidebar.jsx
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { useUserStore } from "../store/userstore";
@@ -9,6 +10,8 @@ function Sidebar() {
     localStorage.removeItem("token");
     window.location.href = "/";
   };
+
+  const linkClass = ({ isActive }) => (isActive ? "sidebar-link active" : "sidebar-link");
 
   return (
     <div
@@ -22,44 +25,40 @@ function Sidebar() {
         flexDirection: "column",
       }}
     >
-      {/* Logo */}
-      <h2
-        className="fw-bold text-theme"
-        style={{
-          marginBottom: "30px",
-          letterSpacing: "0.5px",
-        }}
-      >
+      <h2 className="fw-bold text-theme" style={{ marginBottom: "30px", letterSpacing: "0.5px" }}>
         FinTrack
       </h2>
 
-      {/* NAV LINKS */}
       <nav className="d-flex flex-column gap-2">
-        <NavLink to="/dashboard" className="sidebar-link">
+        <NavLink to="/dashboard" end className={linkClass}>
           <i className="bi bi-grid me-2"></i> Dashboard
         </NavLink>
 
-        <NavLink to="/dashboard/transactions" className="sidebar-link">
+        <NavLink to="/dashboard/transactions" className={linkClass}>
           <i className="bi bi-cash-coin me-2"></i> Transactions
         </NavLink>
 
-        <NavLink to="/dashboard/categories" className="sidebar-link">
+        <NavLink to="/dashboard/categories" className={linkClass}>
           <i className="bi bi-tags me-2"></i> Categories
         </NavLink>
 
-        <NavLink to="/dashboard/profile" className="sidebar-link">
+        <NavLink to="/dashboard/analytics" className={linkClass}>
+          <i className="bi bi-pie-chart me-2"></i> Analytics
+        </NavLink>
+
+        <NavLink to="/dashboard/summary" className={linkClass}>
+          <i className="bi bi-journal-text me-2"></i> Monthly Summary
+        </NavLink>
+
+        <NavLink to="/dashboard/profile" className={linkClass}>
           <i className="bi bi-person me-2"></i> Profile
         </NavLink>
       </nav>
 
-      {/* LOGOUT AT BOTTOM */}
       <button
         className="btn btn-danger w-100 mt-auto"
         onClick={handleLogout}
-        style={{
-          borderRadius: "8px",
-          padding: "10px",
-        }}
+        style={{ borderRadius: "8px", padding: "10px" }}
       >
         <i className="bi bi-box-arrow-right me-2"></i> Logout
       </button>

@@ -1,146 +1,106 @@
-import React from "react";
-import Themetoggle from "../components/themetoggle";
+import React, { useState } from "react";
+import API from "../services/api";
+import { useUserStore } from "../store/userstore";
 
 function Profile() {
+  const user = useUserStore((s) => s.user);
+  const setUser = useUserStore((s) => s.setUser);
+
+  const [username, setUsername] = useState(user?.username || "");
+  const [email] = useState(user?.email || "");
+  const [newPassword, setNewPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
+
+  const [msg, setMsg] = useState("");
+  const [error, setError] = useState("");
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    setMsg("");
+    setError("");
+
+    try {
+      const res = await API.auth.updateProfile({
+        username,
+        oldPassword,
+        newPassword,
+      });
+
+      setUser(res.data.user);
+      setMsg("Profile updated successfully!");
+
+      setOldPassword("");
+      setNewPassword("");
+    } catch (err) {
+      setError(err.response?.data?.message || "Update failed");
+    }
+  };
+
   return (
-    <div className="container p-4">
-      {/* PAGE HEADER */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3 className="text-theme fw-semibold m-0">Profile</h3>
-        <Themetoggle />
-      </div>
+    <div
+      className="card p-4"
+      style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+    >
+      <h3 className="fw-bold mb-3 text-theme">Profile Settings</h3>
+      <p className="text-subtle mb-4">
+        Manage your account details and security
+      </p>
 
-      {/* PROFILE CARD */}
-      <div
-        className="card p-4 mb-4"
-        style={{
-          backgroundColor: "var(--card)",
-          border: "1px solid var(--border)",
-          borderRadius: "16px",
-          boxShadow: "var(--shadow)",
-        }}
-      >
-        <h5 className="text-theme fw-semibold mb-3">User Information</h5>
+      {msg && <div className="alert alert-success">{msg}</div>}
+      {error && <div className="alert alert-danger">{error}</div>}
 
-        {/* NAME */}
+      <form onSubmit={handleUpdate}>
+        {/* USERNAME */}
         <div className="mb-3">
-          <label className="form-label text-theme">Full Name</label>
+          <label className="form-label text-theme">Username</label>
           <input
             type="text"
             className="form-control"
-            placeholder="Your name"
-            style={{
-              backgroundColor: "var(--card)",
-              color: "var(--text)",
-              borderColor: "var(--border)",
-            }}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
           />
         </div>
 
         {/* EMAIL */}
         <div className="mb-3">
-          <label className="form-label text-theme">Email</label>
-          <input
-            type="email"
-            className="form-control"
-            placeholder="you@example.com"
-            style={{
-              backgroundColor: "var(--card)",
-              color: "var(--text)",
-              borderColor: "var(--border)",
-            }}
-          />
+          <label className="form-label text-theme">Email (Cannot edit)</label>
+          <input type="email" disabled className="form-control" value={email} />
         </div>
 
-        <button
-          className="btn btn-primary mt-2"
-          style={{ borderRadius: "8px", padding: "8px 16px" }}
-        >
-          Save Changes
-        </button>
-      </div>
-
-      {/* PASSWORD CARD */}
-      <div
-        className="card p-4 mb-4"
-        style={{
-          backgroundColor: "var(--card)",
-          border: "1px solid var(--border)",
-          borderRadius: "16px",
-          boxShadow: "var(--shadow)",
-        }}
-      >
-        <h5 className="text-theme fw-semibold mb-3">Change Password</h5>
-
+        {/* CURRENT PASSWORD */}
         <div className="mb-3">
           <label className="form-label text-theme">Current Password</label>
           <input
             type="password"
             className="form-control"
             placeholder="Enter current password"
-            style={{
-              backgroundColor: "var(--card)",
-              color: "var(--text)",
-              borderColor: "var(--border)",
-            }}
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
           />
         </div>
 
-        <div className="mb-3">
-          <label className="form-label text-theme">New Password</label>
+        {/* NEW PASSWORD */}
+        <div className="mb-4">
+          <label className="form-label text-theme">
+            New Password (optional)
+          </label>
           <input
             type="password"
             className="form-control"
             placeholder="Enter new password"
-            style={{
-              backgroundColor: "var(--card)",
-              color: "var(--text)",
-              borderColor: "var(--border)",
-            }}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label text-theme">Confirm New Password</label>
-          <input
-            type="password"
-            className="form-control"
-            placeholder="Re-enter new password"
-            style={{
-              backgroundColor: "var(--card)",
-              color: "var(--text)",
-              borderColor: "var(--border)",
-            }}
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
           />
         </div>
 
         <button
-          className="btn btn-primary mt-2"
-          style={{ borderRadius: "8px", padding: "8px 16px" }}
+          className="btn btn-primary w-100"
+          style={{ borderRadius: "10px" }}
         >
-          Update Password
+          Save Changes
         </button>
-      </div>
-
-      {/* LOGOUT CARD */}
-      <div
-        className="card p-4"
-        style={{
-          backgroundColor: "var(--card)",
-          border: "1px solid var(--border)",
-          borderRadius: "16px",
-          boxShadow: "var(--shadow)",
-        }}
-      >
-        <h5 className="text-theme fw-semibold mb-3">Logout</h5>
-        <button
-          className="btn btn-danger"
-          style={{ borderRadius: "8px", padding: "8px 16px" }}
-        >
-          <i className="bi bi-box-arrow-right me-2"></i>
-          Logout
-        </button>
-      </div>
+      </form>
     </div>
   );
 }
