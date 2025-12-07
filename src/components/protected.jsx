@@ -8,7 +8,7 @@ function Protected({ children }) {
 
   // If no user OR no token → force login
   if (!user || !token) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/" replace />
   }
 
   return children;

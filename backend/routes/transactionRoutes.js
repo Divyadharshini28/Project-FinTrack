@@ -22,6 +22,7 @@ router.post("/", authMiddleware, async (req, res) => {
   try {
     const newTx = new Transaction({
       userId: req.user.id,
+      date: req.body.date || new Date(), // ✅ IMPORTANT FIX
       ...req.body,
     });
 

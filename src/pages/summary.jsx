@@ -1,150 +1,123 @@
 // src/pages/summary.jsx
 import React, { useEffect, useState } from "react";
 import API from "../services/api";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
 
 function Summary() {
   const [txs, setTxs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [monthOffset, setMonthOffset] = useState(0); // 0 = this month, -1 = last month, etc.
-  const [barData, setBarData] = useState([]);
-
-  const load = async () => {
-    setLoading(true);
-    try {
-      const res = await API.transactions.getAll();
-      const data = res?.data ?? res ?? [];
-      setTxs(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("Summary load error", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [monthOffset, setMonthOffset] = useState(0);
 
   useEffect(() => {
-    load();
+    API.transactions.getAll().then((res) => setTxs(res.data || []));
   }, []);
 
-  useEffect(() => {
-    // compute totals per day for selected month
-    const now = new Date();
-    const sel = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
-    const selMonth = sel.getMonth();
-    const selYear = sel.getFullYear();
+  const now = new Date();
+  const sel = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+  const m = sel.getMonth();
+  const y = sel.getFullYear();
 
-    let income = 0;
-    let expense = 0;
+  let income = 0,
+    expense = 0;
+  const catMap = {};
 
-    const dayMap = {}; // day -> expense
+  txs.forEach((t) => {
+    const d = new Date(t.date);
+    if (d.getMonth() !== m || d.getFullYear() !== y) return;
 
-    txs.forEach((t) => {
-      const d = new Date(t.date);
-      if (d.getMonth() !== selMonth || d.getFullYear() !== selYear) return;
-      if (t.type === "income") income += Number(t.amount);
-      if (t.type === "expense") {
-        expense += Number(t.amount);
-        const key = d.getDate();
-        dayMap[key] = (dayMap[key] || 0) + Number(t.amount);
-      }
-    });
-
-    const daysInMonth = new Date(selYear, selMonth + 1, 0).getDate();
-
-    const dayArr = [];
-    for (let i = 1; i <= daysInMonth; i++) {
-      dayArr.push({
-        day: i,
-        expense: dayMap[i] || 0,
-      });
+    if (t.type === "income") income += +t.amount;
+    if (t.type === "expense") {
+      expense += +t.amount;
+      const c = t.category || "Others";
+      catMap[c] = (catMap[c] || 0) + +t.amount;
     }
+  });
 
-    setBarData([
-      { name: "Income", value: income },
-      { name: "Expense", value: expense },
-    ]);
+  const cats = Object.keys(catMap).map((k) => ({
+    category: k,
+    amount: catMap[k],
+  }));
 
-    // you can also set more details if you want
-  }, [txs, monthOffset]);
+  const topCat = cats.sort((a, b) => b.amount - a.amount)[0];
 
-  const goPrev = () => setMonthOffset((m) => m - 1);
-  const goNext = () => setMonthOffset((m) => Math.min(m + 1, 0));
+  const tips = [];
+  if (expense > income)
+    tips.push("Your expenses exceeded income. Try budgeting.");
+  if (topCat && topCat.amount / expense > 0.3)
+    tips.push(`High spending on ${topCat.category}. Consider reduction.`);
 
-  const getTitle = () => {
-    const now = new Date();
-    const sel = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
-    return sel.toLocaleString("default", { month: "long", year: "numeric" });
-  };
+  const title = sel.toLocaleString("default", {
+    month: "long",
+    year: "numeric",
+  });
 
   return (
     <div className="container-fluid animate-fade">
-      <div className="d-flex justify-content-between align-items-center mb-3">
+      <div className="d-flex justify-content-between align-items-center mb-4">
         <h3 className="text-theme fw-semibold">Monthly Summary</h3>
-        <div className="d-flex gap-2">
-          <button className="btn btn-outline-secondary" onClick={goPrev}>
+        <div>
+          <button
+            className="btn btn-outline-secondary me-2"
+            onClick={() => setMonthOffset((m) => m - 1)}
+          >
             ◀
           </button>
-          <div className="align-self-center">{getTitle()}</div>
+          <strong>{title}</strong>
           <button
-            className="btn btn-outline-secondary"
-            onClick={goNext}
+            className="btn btn-outline-secondary ms-2"
             disabled={monthOffset === 0}
+            onClick={() => setMonthOffset((m) => m + 1)}
           >
             ▶
           </button>
         </div>
       </div>
 
-      <div className="row g-4">
-        <div className="col-md-6">
-          <div className="card p-3">
-            <h5 className="text-theme mb-3">Income vs Expense</h5>
-            {loading ? (
-              <p>Loading...</p>
-            ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={barData}>
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#14b8a6" />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
+      {/* TOTALS */}
+      <div className="row g-3 mb-4">
+        {[
+          ["Income", income],
+          ["Expense", expense],
+          ["Savings", income - expense],
+        ].map(([k, v]) => (
+          <div className="col-md-4" key={k}>
+            <div className="card p-3">
+              <h6>{k}</h6>
+              <h4>₹ {v}</h4>
+            </div>
           </div>
-        </div>
+        ))}
+      </div>
 
-        <div className="col-md-6">
-          <div className="card p-3">
-            <h5 className="text-theme mb-3">Quick Totals</h5>
-            {loading ? (
-              <p>Loading...</p>
-            ) : (
-              <div>
-                <p>
-                  <strong>Income:</strong> ₹
-                  {barData.find((b) => b.name === "Income")?.value ?? 0}
-                </p>
-                <p>
-                  <strong>Expense:</strong> ₹
-                  {barData.find((b) => b.name === "Expense")?.value ?? 0}
-                </p>
-                <p>
-                  <strong>Net:</strong> ₹
-                  {(barData.find((b) => b.name === "Income")?.value || 0) -
-                    (barData.find((b) => b.name === "Expense")?.value || 0)}
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+      {/* CATEGORY */}
+      <div className="card p-3 mb-4">
+        <h5>Spending by Category</h5>
+        {cats.length === 0 ? (
+          <p>No expenses recorded.</p>
+        ) : (
+          <table className="table">
+            <tbody>
+              {cats.map((c) => (
+                <tr key={c.category}>
+                  <td>{c.category}</td>
+                  <td>₹ {c.amount}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* INSIGHTS */}
+      <div className="card p-3">
+        <h5>Insights & Tips</h5>
+        {tips.length === 0 ? (
+          <p>You’re managing your finances well 👍</p>
+        ) : (
+          <ul>
+            {tips.map((t, i) => (
+              <li key={i}>{t}</li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
