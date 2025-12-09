@@ -38,12 +38,6 @@ function Login() {
         <p className="hero-subtitle">
           Manage your expenses effortlessly. Save more, spend smarter.
         </p>
-
-        <img
-          src="https://cdni.iconscout.com/illustration/premium/thumb/investment-planning-illustration-download-in-svg-png-gif-file-formats--finance-money-saving-pack-illustrations-4302968.png"
-          className="hero-image"
-          alt="Finance Illustration"
-        />
       </div>
 
       <div className="login-right">

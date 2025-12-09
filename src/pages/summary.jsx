@@ -7,7 +7,10 @@ function Summary() {
   const [monthOffset, setMonthOffset] = useState(0);
 
   useEffect(() => {
-    API.transactions.getAll().then((res) => setTxs(res.data || []));
+    API.transactions
+      .getAll()
+      .then((res) => setTxs(res.data || []))
+      .catch(console.error);
   }, []);
 
   const now = new Date();
@@ -36,13 +39,8 @@ function Summary() {
     amount: catMap[k],
   }));
 
-  const topCat = cats.sort((a, b) => b.amount - a.amount)[0];
-
-  const tips = [];
-  if (expense > income)
-    tips.push("Your expenses exceeded income. Try budgeting.");
-  if (topCat && topCat.amount / expense > 0.3)
-    tips.push(`High spending on ${topCat.category}. Consider reduction.`);
+  const topCat =
+    cats.length > 0 ? cats.sort((a, b) => b.amount - a.amount)[0] : null;
 
   const title = sel.toLocaleString("default", {
     month: "long",
@@ -52,7 +50,8 @@ function Summary() {
   return (
     <div className="container-fluid animate-fade">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3 className="text-theme fw-semibold">Monthly Summary</h3>
+        <h3 className="fw-semibold">Monthly Summary</h3>
+
         <div>
           <button
             className="btn btn-outline-secondary me-2"
@@ -71,34 +70,44 @@ function Summary() {
         </div>
       </div>
 
-      {/* TOTALS */}
+      {/* METRICS */}
       <div className="row g-3 mb-4">
-        {[
-          ["Income", income],
-          ["Expense", expense],
-          ["Savings", income - expense],
-        ].map(([k, v]) => (
-          <div className="col-md-4" key={k}>
-            <div className="card p-3">
-              <h6>{k}</h6>
-              <h4>₹ {v}</h4>
-            </div>
+        <div className="col-md-4">
+          <div className="card p-3">
+            <h6>Income</h6>
+            <h4>₹ {income}</h4>
           </div>
-        ))}
+        </div>
+
+        <div className="col-md-4">
+          <div className="card p-3">
+            <h6>Expenses</h6>
+            <h4>₹ {expense}</h4>
+          </div>
+        </div>
+
+        <div className="col-md-4">
+          <div className="card p-3">
+            <h6>Savings</h6>
+            <h4 className={income - expense < 0 ? "text-danger" : ""}>
+              ₹ {income - expense}
+            </h4>
+          </div>
+        </div>
       </div>
 
-      {/* CATEGORY */}
+      {/* CATEGORY TABLE */}
       <div className="card p-3 mb-4">
         <h5>Spending by Category</h5>
         {cats.length === 0 ? (
           <p>No expenses recorded.</p>
         ) : (
-          <table className="table">
+          <table className="table table-sm mt-2">
             <tbody>
               {cats.map((c) => (
                 <tr key={c.category}>
                   <td>{c.category}</td>
-                  <td>₹ {c.amount}</td>
+                  <td className="text-end">₹ {c.amount}</td>
                 </tr>
               ))}
             </tbody>
@@ -108,16 +117,14 @@ function Summary() {
 
       {/* INSIGHTS */}
       <div className="card p-3">
-        <h5>Insights & Tips</h5>
-        {tips.length === 0 ? (
-          <p>You’re managing your finances well 👍</p>
-        ) : (
-          <ul>
-            {tips.map((t, i) => (
-              <li key={i}>{t}</li>
-            ))}
-          </ul>
+        <h5>Insights</h5>
+        {expense > income && (
+          <p>⚠️ You spent more than your income this month.</p>
         )}
+        {topCat && topCat.amount / expense > 0.3 && (
+          <p>📌 High spending on {topCat.category}. Try reducing it.</p>
+        )}
+        {expense <= income && <p>✅ You are managing well. Keep it up!</p>}
       </div>
     </div>
   );

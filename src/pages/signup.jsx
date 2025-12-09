@@ -42,12 +42,6 @@ function Signup() {
         <p className="hero-subtitle">
           Create your account and start managing expenses like a pro.
         </p>
-
-        <img
-          src="https://cdni.iconscout.com/illustration/premium/thumb/business-growth-chart-illustration-download-in-svg-png-gif-file-formats--analytics-bar-graph-pack-illustrations-3114510.png"
-          className="hero-image"
-          alt="Signup Illustration"
-        />
       </div>
 
       <div className="login-right">

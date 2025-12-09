@@ -124,7 +124,10 @@ function DashboardLayout() {
       <Sidebar />
 
       {/* MAIN */}
-      <div className="flex-grow-1 d-flex flex-column">
+      <div
+        className="flex-grow-1 d-flex flex-column"
+        style={{ minHeight: 0 }}
+      >
         {/* TOPBAR */}
         <header
           className="d-flex align-items-center justify-content-between px-3"
@@ -163,7 +166,14 @@ function DashboardLayout() {
         </header>
 
         {/* CONTENT */}
-        <main style={{ flex: 1, backgroundColor: "var(--bg)" }}>
+        <main
+          style={{
+            flex: 1,
+            backgroundColor: "var(--bg)",
+            overflowY: "auto",
+            minHeight: 0,
+          }}
+        >
           <div className="p-4">
             <Outlet />
           </div>

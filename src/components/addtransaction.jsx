@@ -82,6 +82,14 @@ function AddTransaction({ show, onClose, mode = "expense" }) {
         localStorage.setItem(key, JSON.stringify(arr));
       }
 
+      // reset inputs (optional)
+      setTitle("");
+      setAmount("");
+      setCategory("Groceries");
+      setNote("");
+      setRecurring(false);
+      setFreq("monthly");
+
       onClose();
     } catch (err) {
       setError("Failed to add transaction.");
@@ -102,12 +110,15 @@ function AddTransaction({ show, onClose, mode = "expense" }) {
         justifyContent: "center",
         alignItems: "center",
         zIndex: 999,
+        padding: 20,
       }}
     >
       <div
         className="card p-4"
         style={{
           width: "480px",
+          maxHeight: "85vh",
+          overflowY: "auto",
           borderRadius: "16px",
           backgroundColor: "var(--card)",
           border: "1px solid var(--border)",
@@ -213,6 +224,8 @@ function AddTransaction({ show, onClose, mode = "expense" }) {
                 type="date"
                 className="form-control"
                 value={startDate}
+                min={minDate}
+                max={maxDate}
                 onChange={(e) => setStartDate(e.target.value)}
               />
             </div>

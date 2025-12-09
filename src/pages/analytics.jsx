@@ -10,120 +10,163 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
-  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
+
+const COLORS = ["#0d9488", "#14b8a6", "#22c55e", "#f97316", "#ef4444"];
 
 function Analytics() {
   const [txs, setTxs] = useState([]);
-  const [filter, setFilter] = useState("thisMonth");
   const [loading, setLoading] = useState(true);
 
+  // ---------------- LOAD ----------------
   useEffect(() => {
-    API.transactions
-      .getAll()
-      .then((res) => setTxs(res.data || []))
-      .finally(() => setLoading(false));
+    const load = async () => {
+      try {
+        const res = await API.transactions.getAll();
+        const data = Array.isArray(res.data) ? res.data : [];
+        setTxs(data);
+      } catch (err) {
+        console.error("Analytics load error", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
   }, []);
 
-  const today = new Date();
-  const thisMonth = today.getMonth();
-  const thisYear = today.getFullYear();
+  // ---------------- INCOME vs EXPENSE ----------------
+  let income = 0;
+  let expense = 0;
 
-  const lastMonthDate = new Date(thisYear, thisMonth - 1, 1);
-  const last30 = new Date();
-  last30.setDate(today.getDate() - 30);
-
-  const filtered = txs.filter((t) => {
-    const d = new Date(t.date);
-    if (filter === "thisMonth")
-      return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
-    if (filter === "lastMonth")
-      return (
-        d.getMonth() === lastMonthDate.getMonth() &&
-        d.getFullYear() === lastMonthDate.getFullYear()
-      );
-    if (filter === "last30") return d >= last30;
-    return true;
+  txs.forEach((t) => {
+    if (t.type === "income") income += Number(t.amount);
+    if (t.type === "expense") expense += Number(t.amount);
   });
 
-  let income = 0,
-    expense = 0;
-  filtered.forEach((t) => {
-    if (t.type === "income") income += +t.amount;
-    if (t.type === "expense") expense += +t.amount;
-  });
-
-  const barData = [
+  const incomeExpenseData = [
     { name: "Income", value: income },
     { name: "Expense", value: expense },
   ];
 
-  const dailyMap = {};
-  filtered.forEach((t) => {
+  // ---------------- WEEKLY EXPENSE (CURRENT MONTH) ----------------
+  const now = new Date();
+  const month = now.getMonth();
+  const year = now.getFullYear();
+
+  const weekMap = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+  txs.forEach((t) => {
     if (t.type !== "expense") return;
-    const k = new Date(t.date).toISOString().split("T")[0];
-    dailyMap[k] = (dailyMap[k] || 0) + +t.amount;
+    const d = new Date(t.date);
+    if (d.getMonth() !== month || d.getFullYear() !== year) return;
+
+    const week = Math.ceil(d.getDate() / 7);
+    weekMap[week] += Number(t.amount);
   });
 
-  const lineData = Object.keys(dailyMap)
-    .sort()
-    .map((k) => ({ date: k, amount: dailyMap[k] }));
+  const weeklyData = Object.keys(weekMap).map((w) => ({
+    week: `Week ${w}`,
+    amount: weekMap[w],
+  }));
 
+  // ---------------- CATEGORY PIE (EXACT LOGIC STYLE) ----------------
+  const catMap = {};
+  txs.forEach((t) => {
+    if (t.type !== "expense") return;
+    catMap[t.category] = (catMap[t.category] || 0) + Number(t.amount);
+  });
+
+  const pieData = Object.keys(catMap).map((k) => ({
+    name: k,
+    value: catMap[k],
+  }));
+
+  // ---------------- TREND LINE (LAST 10 EXPENSES) ----------------
+  const lineData = txs
+    .filter((t) => t.type === "expense")
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .slice(-10)
+    .map((t) => ({
+      date: t.date.split("T")[0],
+      amount: Number(t.amount),
+    }));
+
+  // ---------------- UI ----------------
   return (
     <div className="container-fluid animate-fade">
-      <h3 className="text-theme fw-semibold mb-4">Analytics Overview</h3>
+      <h3 className="text-theme fw-semibold mb-4">Analytics</h3>
 
-      {/* FILTERS */}
-      <div className="d-flex gap-2 mb-4">
-        {["thisMonth", "lastMonth", "last30"].map((f) => (
-          <button
-            key={f}
-            className={`btn ${
-              filter === f ? "btn-primary" : "btn-outline-primary"
-            }`}
-            onClick={() => setFilter(f)}
-          >
-            {f === "thisMonth"
-              ? "This Month"
-              : f === "lastMonth"
-              ? "Last Month"
-              : "Last 30 Days"}
-          </button>
-        ))}
-      </div>
+      {loading && <p>Loading analytics…</p>}
 
-      <div className="row g-4">
-        {/* BAR */}
-        <div className="col-md-6">
-          <div className="card p-3">
-            <h5>Income vs Expense</h5>
-            {loading ? (
-              <p>Loading...</p>
-            ) : (
-              <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={barData}>
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#14b8a6" />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
+      {!loading && (
+        <>
+          {/* INCOME vs EXPENSE */}
+          <div className="card p-3 mb-4">
+            <h5 className="mb-3">Income vs Expense</h5>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={incomeExpenseData}>
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="value" fill="#0d9488" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-        </div>
 
-        {/* LINE */}
-        <div className="col-md-6">
+          {/* WEEKLY + PIE */}
+          <div className="row g-4 mb-4">
+            <div className="col-md-6">
+              <div className="card p-3">
+                <h5 className="mb-3">Weekly Expenses (This Month)</h5>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={weeklyData}>
+                    <XAxis dataKey="week" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="amount" fill="#14b8a6" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="col-md-6">
+              <div className="card p-3">
+                <h5 className="mb-3">Expenses by Category</h5>
+                {pieData.length === 0 ? (
+                  <p>No expense data</p>
+                ) : (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        dataKey="value"
+                        nameKey="name"
+                        outerRadius={110}
+                        label
+                      >
+                        {pieData.map((_, i) => (
+                          <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* TREND LINE */}
           <div className="card p-3">
-            <h5>Daily Spending Trend</h5>
+            <h5 className="mb-3">Expense Trend (Last 10)</h5>
             {lineData.length === 0 ? (
-              <p className="text-subtle">No expense data</p>
+              <p>No expense data.</p>
             ) : (
-              <ResponsiveContainer width="100%" height={280}>
+              <ResponsiveContainer width="100%" height={250}>
                 <LineChart data={lineData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
                   <Tooltip />
                   <Line
                     type="monotone"
@@ -135,8 +178,8 @@ function Analytics() {
               </ResponsiveContainer>
             )}
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 }

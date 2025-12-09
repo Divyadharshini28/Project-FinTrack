@@ -1,3 +1,4 @@
+// src/pages/transactions.jsx
 import React, { useState, useEffect } from "react";
 import AddTransaction from "../components/addtransaction";
 import API from "../services/api";
@@ -9,8 +10,7 @@ function Transactions() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [sort, setSort] = useState("");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+  const [dateFilter, setDateFilter] = useState(""); // single date filter (yyyy-mm-dd)
 
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("expense");
@@ -19,8 +19,9 @@ function Transactions() {
   const loadData = async () => {
     try {
       const res = await API.transactions.getAll();
-      setTransactions(res.data);
-      setFiltered(res.data);
+      const data = Array.isArray(res.data) ? res.data : [];
+      setTransactions(data);
+      setFiltered(data);
     } catch (err) {
       console.log("Failed to load transactions", err);
     }
@@ -51,8 +52,8 @@ function Transactions() {
       const s = search.toLowerCase();
       list = list.filter(
         (t) =>
-          t.title.toLowerCase().includes(s) ||
-          t.category.toLowerCase().includes(s)
+          (t.title || "").toLowerCase().includes(s) ||
+          (t.category || "").toLowerCase().includes(s)
       );
     }
 
@@ -61,9 +62,15 @@ function Transactions() {
       list = list.filter((t) => t.category === categoryFilter);
     }
 
-    // DATE RANGE
-    if (fromDate) list = list.filter((t) => t.date >= fromDate);
-    if (toDate) list = list.filter((t) => t.date <= toDate);
+    // DATE FILTER (single date)
+    if (dateFilter) {
+      // compare yyyy-mm-dd strings to avoid timezone issues
+      list = list.filter((t) => {
+        if (!t.date) return false;
+        const d = new Date(t.date).toISOString().split("T")[0];
+        return d === dateFilter;
+      });
+    }
 
     // SORTING
     if (sort === "date-asc")
@@ -76,17 +83,17 @@ function Transactions() {
       list.sort((a, b) => Number(b.amount) - Number(a.amount));
 
     setFiltered(list);
-  }, [search, categoryFilter, sort, fromDate, toDate, transactions]);
+  }, [search, categoryFilter, sort, dateFilter, transactions]);
 
   // ---------------- OPEN MODAL ----------------
   const openModal = (type) => {
-    setModalType(type);
+    setModalType(type); // "expense" or "income"
     setShowModal(true);
   };
 
   // GET UNIQUE CATEGORIES
   const allCategories = Array.from(
-    new Set(transactions.map((t) => t.category))
+    new Set(transactions.map((t) => t.category).filter(Boolean))
   );
 
   return (
@@ -117,7 +124,7 @@ function Transactions() {
         className="card p-3 mb-3"
         style={{ borderRadius: "14px", background: "var(--card)" }}
       >
-        <div className="row g-3">
+        <div className="row g-3 align-items-center">
           {/* SEARCH */}
           <div className="col-md-4">
             <input
@@ -158,23 +165,21 @@ function Transactions() {
             </select>
           </div>
 
-          {/* DATE RANGE */}
-          <div className="col-md-3">
+          {/* SINGLE DATE FILTER */}
+          <div className="col-md-2 d-flex align-items-center gap-2">
             <input
               type="date"
               className="form-control"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
             />
-          </div>
-
-          <div className="col-md-3">
-            <input
-              type="date"
-              className="form-control"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-            />
+            <button
+              className="btn btn-outline-secondary"
+              onClick={() => setDateFilter("")}
+              title="Clear date"
+            >
+              ✕
+            </button>
           </div>
         </div>
       </div>
@@ -233,7 +238,9 @@ function Transactions() {
                   {tx.type === "expense" ? `-₹${tx.amount}` : `+₹${tx.amount}`}
                 </td>
 
-                <td>{tx.date}</td>
+                <td>
+                  {tx.date ? new Date(tx.date).toLocaleDateString() : "—"}
+                </td>
 
                 <td>
                   <span
